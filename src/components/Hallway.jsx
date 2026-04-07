@@ -80,7 +80,7 @@ function RoomDoor({ roomId, door, isOpen, isOpening, onHover, isHovered }) {
   );
 }
 
-export default function Hallway({ rooms, onSelectRoom, openedRooms, onOpenRoom }) {
+export default function Hallway({ rooms, onSelectRoom, openedRooms, onOpenRoom, viewedCards }) {
   const [hoveredRoom, setHoveredRoom] = useState(null);
   const [openingRoom, setOpeningRoom] = useState(null);
 
@@ -120,6 +120,9 @@ export default function Hallway({ rooms, onSelectRoom, openedRooms, onOpenRoom }
   const roomInfo = roomMap[hoveredRoom];
   const openedRoomsList = rooms.filter(r => openedRooms.has(r.id));
   const unopenedCount = rooms.length - openedRoomsList.length;
+  const totalCards = rooms.reduce((sum, r) => sum + r.cards.length, 0);
+  const viewedCount = viewedCards ? viewedCards.size : 0;
+  const delightsLeft = totalCards - viewedCount;
 
   return (
     <div className="hallway">
@@ -422,26 +425,39 @@ export default function Hallway({ rooms, onSelectRoom, openedRooms, onOpenRoom }
             ? 'All rooms discovered!'
             : `${unopenedCount} room${unopenedCount > 1 ? 's' : ''} still hidden`}
         </p>
+        {delightsLeft > 0 && (
+          <p className="room-progress-delights">{delightsLeft} delight{delightsLeft !== 1 ? 's' : ''} still to find</p>
+        )}
+        {delightsLeft === 0 && (
+          <p className="room-progress-delights">All delights discovered!</p>
+        )}
       </div>
 
       {/* Room list — only opened rooms */}
       {openedRoomsList.length > 0 && (
         <div className="map-room-list">
-          {openedRoomsList.map((room, i) => (
-            <button
-              key={room.id}
-              className="map-room-btn"
-              onClick={() => onSelectRoom(room)}
-              style={{ '--room-color': room.color, animationDelay: `${0.1 + i * 0.08}s` }}
-            >
-              <span className="map-room-btn-emoji">{room.emoji}</span>
-              <div className="map-room-btn-info">
-                <span className="map-room-btn-name">{room.name}</span>
-                <span className="map-room-btn-sign">"{room.sign}"</span>
-              </div>
-              <span className="map-room-btn-count">{room.cards.length}</span>
-            </button>
-          ))}
+          {openedRoomsList.map((room, i) => {
+            const roomDelightsLeft = room.cards.filter(
+              c => !viewedCards || !viewedCards.has(`${room.id}:${c.title}`)
+            ).length;
+            return (
+              <button
+                key={room.id}
+                className="map-room-btn"
+                onClick={() => onSelectRoom(room)}
+                style={{ '--room-color': room.color, animationDelay: `${0.1 + i * 0.08}s` }}
+              >
+                <span className="map-room-btn-emoji">{room.emoji}</span>
+                <div className="map-room-btn-info">
+                  <span className="map-room-btn-name">{room.name}</span>
+                  <span className="map-room-btn-sign">"{room.sign}"</span>
+                </div>
+                <span className="map-room-btn-count">
+                  {roomDelightsLeft > 0 ? roomDelightsLeft : '&#10003;'}
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
