@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { playWalkTheLine } from '../audio/walkTheLine';
 
 export default function LandingPage({ onEnter }) {
   const [doorOpen, setDoorOpen] = useState(false);
 
   const handleClick = () => {
     setDoorOpen(true);
+    playWalkTheLine();
     setTimeout(onEnter, 800);
   };
 
