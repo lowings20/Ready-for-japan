@@ -108,10 +108,11 @@ function SugarSpinner({ onResult }) {
     setDone(false);
 
     const accepted = Math.random() < 0.5;
-    // Land on the right segment: accepted = green zone, declined = red zone
+    // Wheel rotates CW; pointer is fixed at top. The sector at (360 - θ) lands under pointer.
+    // Green/YES is the right half, Red/NO is the left half.
     const targetAngle = accepted
-      ? 360 * 6 + 15 + Math.random() * 150   // 6 full spins + land in green half
-      : 360 * 6 + 195 + Math.random() * 150; // 6 full spins + land in red half
+      ? 360 * 6 + 195 + Math.random() * 150  // pointer lands on green/YES (right half)
+      : 360 * 6 + 15 + Math.random() * 150;  // pointer lands on red/NO (left half)
 
     let current = 0;
     const duration = 3000;
