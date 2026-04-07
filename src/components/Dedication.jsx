@@ -39,8 +39,8 @@ export default function Dedication({ onComplete }) {
 
   useEffect(() => {
     const showTimer = setTimeout(() => setVisible(true), 100);
-    const fadeTimer = setTimeout(() => setFading(true), 6000);
-    const doneTimer = setTimeout(() => onComplete(), 7000);
+    const fadeTimer = setTimeout(() => setFading(true), 9000);
+    const doneTimer = setTimeout(() => onComplete(), 10000);
 
     return () => {
       clearTimeout(showTimer);

@@ -905,12 +905,12 @@ body {
 }
 
 .cat-peek-left {
-  left: -10px;
+  left: -20px;
   animation: peek-in-left 0.4s ease-out forwards;
 }
 
 .cat-peek-right {
-  right: -10px;
+  right: -20px;
   animation: peek-in-right 0.4s ease-out forwards;
 }
 

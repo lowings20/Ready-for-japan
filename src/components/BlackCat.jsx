@@ -12,7 +12,7 @@ const CAT_STATES = {
 // SVG cat components
 function PeekingCat({ side }) {
   return (
-    <svg viewBox="0 0 60 80" width="50" height="66" style={{ transform: side === 'left' ? 'scaleX(1)' : 'scaleX(-1)' }}>
+    <svg viewBox="0 0 60 80" width="100" height="132" style={{ transform: side === 'left' ? 'scaleX(1)' : 'scaleX(-1)' }}>
       {/* ear left */}
       <path d="M12 20 L8 2 L22 14Z" fill="#1a1a1a" stroke="#111" strokeWidth="0.8"/>
       <path d="M14 18 L11 6 L20 15Z" fill="#3a2028" opacity="0.5"/>
@@ -60,7 +60,7 @@ function PeekingCat({ side }) {
 function RunningCat({ frame }) {
   const legOffset = frame % 2 === 0;
   return (
-    <svg viewBox="0 0 120 60" width="80" height="40">
+    <svg viewBox="0 0 120 60" width="160" height="80">
       {/* tail */}
       <path d={`M5 18 Q${legOffset ? -5 : 0} ${legOffset ? 5 : 10} ${legOffset ? 2 : -3} ${legOffset ? 0 : 5}`}
         stroke="#1a1a1a" strokeWidth="3" fill="none" strokeLinecap="round"/>
