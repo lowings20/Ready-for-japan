@@ -1,5 +1,18 @@
 import { useState, useCallback, useMemo } from 'react';
-import { rooms } from './data/cards';
+import { rooms as rawRooms } from './data/cards';
+
+// Fisher-Yates shuffle
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Shuffle cards within each room once at load time
+const rooms = rawRooms.map(r => ({ ...r, cards: shuffle(r.cards) }));
 import LandingPage from './components/LandingPage';
 import Hallway from './components/Hallway';
 import Room from './components/Room';
