@@ -15,6 +15,21 @@ function App() {
   const [selectedCard, setSelectedCard] = useState(null);
   const [transitioning, setTransitioning] = useState(false);
   const [viewedCards, setViewedCards] = useState(new Set());
+  const [openedRooms, setOpenedRooms] = useState(() => {
+    try {
+      const saved = localStorage.getItem('openedRooms');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch { return new Set(); }
+  });
+
+  const handleOpenRoom = useCallback((roomId) => {
+    setOpenedRooms(prev => {
+      const next = new Set(prev);
+      next.add(roomId);
+      localStorage.setItem('openedRooms', JSON.stringify([...next]));
+      return next;
+    });
+  }, []);
 
   const totalCards = useMemo(() => rooms.reduce((sum, r) => sum + r.cards.length, 0), []);
 
@@ -75,6 +90,8 @@ function App() {
           rooms={rooms}
           onSelectRoom={(room) => navigate('room', room)}
           viewedCards={viewedCards}
+          openedRooms={openedRooms}
+          onOpenRoom={handleOpenRoom}
         />
       )}
       {view === 'room' && selectedRoom && (

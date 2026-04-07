@@ -1,20 +1,114 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function Hallway({ rooms, onSelectRoom }) {
+// Door configs matching each room's position in the SVG
+const ROOM_DOORS = {
+  pantry:       { x: 35,  y: 105, w: 95, h: 90, rx: 8, color: '#c4956a', darkColor: '#8b6e4a' },
+  wardrobe:     { x: 270, y: 105, w: 95, h: 90, rx: 8, color: '#8b6e99', darkColor: '#6b4e79' },
+  'guest-rooms':{ x: 35,  y: 210, w: 95, h: 90, rx: 8, color: '#b85c4e', darkColor: '#8b3a2e' },
+  study:        { x: 152, y: 115, w: 96, h: 85, rx: 8, color: '#6b8e6b', darkColor: '#4a6a4a' },
+  'window-seat':{ x: 270, y: 210, w: 95, h: 90, rx: 8, color: '#5a7d9a', darkColor: '#3a5a78' },
+};
+
+function RoomDoor({ roomId, door, isOpen, isOpening, onHover, isHovered }) {
+  if (isOpen && !isOpening) return null;
+
+  const cx = door.x + door.w / 2;
+  const cy = door.y + door.h / 2;
+  // Unique animation ID per door
+  const shimId = `shim-${roomId}`;
+
+  return (
+    <g
+      className={`room-door ${isOpening ? 'room-door-opening' : ''}`}
+      style={{ transformOrigin: `${door.x}px ${cy}px` }}
+    >
+      {/* Door panel */}
+      <rect
+        x={door.x} y={door.y} width={door.w} height={door.h} rx={door.rx}
+        fill={door.darkColor}
+        stroke={isHovered ? door.color : '#a08060'}
+        strokeWidth={isHovered ? 2.5 : 1.5}
+        className="room-door-panel"
+      />
+      {/* Wood grain lines */}
+      <line x1={door.x + 8} y1={door.y + door.h * 0.25} x2={door.x + door.w - 8} y2={door.y + door.h * 0.25}
+        stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+      <line x1={door.x + 8} y1={door.y + door.h * 0.5} x2={door.x + door.w - 8} y2={door.y + door.h * 0.5}
+        stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+      <line x1={door.x + 8} y1={door.y + door.h * 0.75} x2={door.x + door.w - 8} y2={door.y + door.h * 0.75}
+        stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+      {/* Round doorknob */}
+      <circle cx={door.x + door.w - 16} cy={cy} r={4}
+        fill="#d4b060" stroke="#8b6914" strokeWidth="0.8" />
+      <circle cx={door.x + door.w - 17} cy={cy - 1} r={1.5}
+        fill="#f0d870" opacity="0.6" />
+      {/* Keyhole */}
+      <ellipse cx={door.x + door.w - 16} cy={cy + 10} rx={1.5} ry={2.5}
+        fill="#2a1a0a" opacity="0.6" />
+      {/* Shimmer/glow effect */}
+      <rect
+        x={door.x} y={door.y} width={door.w} height={door.h} rx={door.rx}
+        fill={`url(#${shimId})`}
+        opacity={isHovered ? 0.35 : 0.15}
+        className="room-door-shimmer"
+      />
+      <defs>
+        <linearGradient id={shimId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#f8e090" stopOpacity="0">
+            <animate attributeName="stopOpacity" values="0;0.6;0" dur="3s" repeatCount="indefinite" />
+          </stop>
+          <stop offset="50%" stopColor="#f8e090" stopOpacity="0.3">
+            <animate attributeName="stopOpacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite" />
+          </stop>
+          <stop offset="100%" stopColor="#f8e090" stopOpacity="0">
+            <animate attributeName="stopOpacity" values="0;0.4;0" dur="3s" repeatCount="indefinite" />
+          </stop>
+        </linearGradient>
+      </defs>
+      {/* Room name on door */}
+      <text x={cx} y={cy - 8} textAnchor="middle" className="map-label"
+        fill="rgba(255,255,255,0.5)" fontSize="9">
+        {roomId === 'guest-rooms' ? 'Guest Rooms' : roomId === 'window-seat' ? 'Window Seat' :
+         roomId.charAt(0).toUpperCase() + roomId.slice(1)}
+      </text>
+      {/* "?" hint */}
+      <text x={cx} y={cy + 12} textAnchor="middle"
+        fill={door.color} fontSize="16" fontFamily="'Crimson Text', Georgia, serif"
+        fontWeight="700" opacity={isHovered ? 1 : 0.5}
+        className="door-question-mark">?</text>
+    </g>
+  );
+}
+
+export default function Hallway({ rooms, onSelectRoom, openedRooms, onOpenRoom }) {
   const [hoveredRoom, setHoveredRoom] = useState(null);
+  const [openingRoom, setOpeningRoom] = useState(null);
 
   const roomMap = {};
   rooms.forEach(r => { roomMap[r.id] = r; });
 
   const handleRoomClick = (roomId) => {
     const room = roomMap[roomId];
-    if (room) onSelectRoom(room);
+    if (!room) return;
+
+    if (openedRooms.has(roomId)) {
+      // Already opened — navigate directly
+      onSelectRoom(room);
+    } else {
+      // Play opening animation, then navigate
+      setOpeningRoom(roomId);
+      onOpenRoom(roomId);
+      setTimeout(() => {
+        setOpeningRoom(null);
+        onSelectRoom(room);
+      }, 800);
+    }
   };
 
   const RoomHitArea = ({ roomId, x, y, w, h, rx = 0 }) => (
     <rect
       x={x} y={y} width={w} height={h} rx={rx}
-      fill={hoveredRoom === roomId ? 'rgba(255,255,255,0.12)' : 'transparent'}
+      fill={hoveredRoom === roomId ? 'rgba(255,255,255,0.08)' : 'transparent'}
       stroke="none"
       style={{ cursor: 'pointer' }}
       onMouseEnter={() => setHoveredRoom(roomId)}
@@ -24,12 +118,14 @@ export default function Hallway({ rooms, onSelectRoom }) {
   );
 
   const roomInfo = roomMap[hoveredRoom];
+  const openedRoomsList = rooms.filter(r => openedRooms.has(r.id));
+  const unopenedCount = rooms.length - openedRoomsList.length;
 
   return (
     <div className="hallway">
       <div className="hallway-header">
         <h2 className="hallway-title">Bag End</h2>
-        <p className="hallway-subtitle">Tap a room to explore</p>
+        <p className="hallway-subtitle">Tap a room to discover what's inside</p>
       </div>
 
       <div className="map-container">
@@ -274,6 +370,19 @@ export default function Hallway({ rooms, onSelectRoom }) {
           <ellipse cx="200" cy="230" rx="12" ry="6" fill="#c85050" opacity="0.15" />
           <ellipse cx="200" cy="268" rx="10" ry="5" fill="#4a6a98" opacity="0.1" />
 
+          {/* === DOOR OVERLAYS (cover unopened rooms) === */}
+          {Object.entries(ROOM_DOORS).map(([id, door]) => (
+            <RoomDoor
+              key={id}
+              roomId={id}
+              door={door}
+              isOpen={openedRooms.has(id)}
+              isOpening={openingRoom === id}
+              onHover={setHoveredRoom}
+              isHovered={hoveredRoom === id}
+            />
+          ))}
+
           {/* === CLICKABLE HIT AREAS (on top of everything) === */}
           <RoomHitArea roomId="pantry" x="35" y="105" w="95" h="90" rx="8" />
           <RoomHitArea roomId="wardrobe" x="270" y="105" w="95" h="90" rx="8" />
@@ -287,29 +396,54 @@ export default function Hallway({ rooms, onSelectRoom }) {
           <div className="map-tooltip" style={{ '--room-color': roomInfo.color }}>
             <span className="map-tooltip-emoji">{roomInfo.emoji}</span>
             <span className="map-tooltip-name">{roomInfo.name}</span>
-            <span className="map-tooltip-count">{roomInfo.cards.length}</span>
+            {openedRooms.has(hoveredRoom) ? (
+              <span className="map-tooltip-count">{roomInfo.cards.length}</span>
+            ) : (
+              <span className="map-tooltip-count">???</span>
+            )}
           </div>
         )}
       </div>
 
-      {/* Mobile room labels below the map */}
-      <div className="map-room-list">
-        {rooms.map((room) => (
-          <button
-            key={room.id}
-            className="map-room-btn"
-            onClick={() => onSelectRoom(room)}
-            style={{ '--room-color': room.color }}
-          >
-            <span className="map-room-btn-emoji">{room.emoji}</span>
-            <div className="map-room-btn-info">
-              <span className="map-room-btn-name">{room.name}</span>
-              <span className="map-room-btn-sign">"{room.sign}"</span>
-            </div>
-            <span className="map-room-btn-count">{room.cards.length}</span>
-          </button>
-        ))}
+      {/* Progress indicator */}
+      <div className="room-progress">
+        <div className="room-progress-bar">
+          {rooms.map((room) => (
+            <div
+              key={room.id}
+              className={`room-progress-pip ${openedRooms.has(room.id) ? 'pip-opened' : 'pip-closed'}`}
+              style={{ '--room-color': room.color }}
+              title={openedRooms.has(room.id) ? room.name : '???'}
+            />
+          ))}
+        </div>
+        <p className="room-progress-text">
+          {unopenedCount === 0
+            ? 'All rooms discovered!'
+            : `${unopenedCount} room${unopenedCount > 1 ? 's' : ''} still hidden`}
+        </p>
       </div>
+
+      {/* Room list — only opened rooms */}
+      {openedRoomsList.length > 0 && (
+        <div className="map-room-list">
+          {openedRoomsList.map((room, i) => (
+            <button
+              key={room.id}
+              className="map-room-btn"
+              onClick={() => onSelectRoom(room)}
+              style={{ '--room-color': room.color, animationDelay: `${0.1 + i * 0.08}s` }}
+            >
+              <span className="map-room-btn-emoji">{room.emoji}</span>
+              <div className="map-room-btn-info">
+                <span className="map-room-btn-name">{room.name}</span>
+                <span className="map-room-btn-sign">"{room.sign}"</span>
+              </div>
+              <span className="map-room-btn-count">{room.cards.length}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
