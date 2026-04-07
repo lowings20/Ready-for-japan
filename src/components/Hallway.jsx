@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 
 // Door configs matching each room's position in the SVG
 const ROOM_DOORS = {
-  pantry:       { x: 35,  y: 105, w: 95, h: 90, rx: 8, color: '#c4956a', darkColor: '#8b6e4a' },
-  wardrobe:     { x: 270, y: 105, w: 95, h: 90, rx: 8, color: '#8b6e99', darkColor: '#6b4e79' },
-  'guest-rooms':{ x: 35,  y: 210, w: 95, h: 90, rx: 8, color: '#b85c4e', darkColor: '#8b3a2e' },
-  study:        { x: 152, y: 115, w: 96, h: 85, rx: 8, color: '#6b8e6b', darkColor: '#4a6a4a' },
-  'window-seat':{ x: 270, y: 210, w: 95, h: 90, rx: 8, color: '#5a7d9a', darkColor: '#3a5a78' },
+  pantry:       { x: 35,  y: 105, w: 95, h: 90, rx: 8, color: '#c4956a', darkColor: '#c4a878' },
+  wardrobe:     { x: 270, y: 105, w: 95, h: 90, rx: 8, color: '#8b6e99', darkColor: '#a088a8' },
+  'guest-rooms':{ x: 35,  y: 210, w: 95, h: 90, rx: 8, color: '#b85c4e', darkColor: '#b87868' },
+  study:        { x: 152, y: 115, w: 96, h: 85, rx: 8, color: '#6b8e6b', darkColor: '#88a888' },
+  'window-seat':{ x: 270, y: 210, w: 95, h: 90, rx: 8, color: '#5a7d9a', darkColor: '#7898b0' },
 };
 
 function RoomDoor({ roomId, door, isOpen, isOpening, onHover, isHovered }) {
@@ -26,8 +26,8 @@ function RoomDoor({ roomId, door, isOpen, isOpening, onHover, isHovered }) {
       <rect
         x={door.x} y={door.y} width={door.w} height={door.h} rx={door.rx}
         fill={door.darkColor}
-        stroke={isHovered ? door.color : '#a08060'}
-        strokeWidth={isHovered ? 2.5 : 1.5}
+        stroke={isHovered ? door.color : '#8b7355'}
+        strokeWidth={isHovered ? 3 : 2}
         className="room-door-panel"
       />
       {/* Wood grain lines */}
