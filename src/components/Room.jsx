@@ -1,6 +1,8 @@
 import CardIllustration from './CardIllustration';
 
 export default function Room({ room, onBack, onSelectCard, viewedCards }) {
+  const viewedCount = room.cards.filter(c => viewedCards && viewedCards.has(`${room.id}:${c.title}`)).length;
+
   return (
     <div className="room-view">
       <button className="back-btn" onClick={onBack}>
@@ -14,6 +16,7 @@ export default function Room({ room, onBack, onSelectCard, viewedCards }) {
         <span className="room-header-emoji">{room.emoji}</span>
         <h2 className="room-title">{room.name}</h2>
         <p className="room-sign-large">"{room.sign}"</p>
+        <p className="room-progress-count">{viewedCount} of {room.cards.length} discovered</p>
       </div>
 
       <div className="card-grid">
@@ -35,7 +38,7 @@ export default function Room({ room, onBack, onSelectCard, viewedCards }) {
                 <h3 className="card-title">{card.title}</h3>
               </div>
               {card.easterEgg && !viewed && <span className="egg-sparkle">&#10026;</span>}
-              {viewed && <span className="card-viewed-check">&#10003;</span>}
+              {viewed && <span className="card-viewed-stamp" style={{ '--room-color': room.color }} />}
             </button>
           );
         })}

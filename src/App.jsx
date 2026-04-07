@@ -44,32 +44,39 @@ function App() {
     }, 400);
   }, []);
 
-  const handleSelectCard = useCallback((card, room) => {
-    // Build a unique key for this card
+  const [selectedCardIndex, setSelectedCardIndex] = useState(0);
+
+  const markCardViewed = useCallback((card, room) => {
     const key = `${room.id}:${card.title}`;
     setViewedCards(prev => {
       const next = new Set(prev);
       next.add(key);
       return next;
     });
-    navigate('card', room, card);
-  }, [navigate]);
+  }, []);
 
-  // Check if finale should trigger when returning from a card
-  const handleBackToRoom = useCallback((room) => {
-    // Check after a tick so the state has updated
-    setTimeout(() => {
-      setViewedCards(prev => {
-        if (prev.size >= totalCards) {
-          // All cards viewed — go to finale
-          navigate('finale');
-          return prev;
-        }
-        navigate('room', room);
-        return prev;
-      });
-    }, 0);
-  }, [navigate, totalCards]);
+  const handleSelectCard = useCallback((card, room) => {
+    markCardViewed(card, room);
+    const idx = room.cards.findIndex(c => c.title === card.title);
+    setSelectedCardIndex(idx >= 0 ? idx : 0);
+    navigate('card', room, card);
+  }, [navigate, markCardViewed]);
+
+  const checkFinale = useCallback(() => {
+    if (viewedCards.size >= totalCards) {
+      navigate('finale');
+      return true;
+    }
+    return false;
+  }, [navigate, totalCards, viewedCards]);
+
+  const handleGoToRoom = useCallback((room) => {
+    if (!checkFinale()) navigate('room', room);
+  }, [navigate, checkFinale]);
+
+  const handleGoHome = useCallback(() => {
+    if (!checkFinale()) navigate('hallway');
+  }, [navigate, checkFinale]);
 
   return (
     <div className={`app ${transitioning ? 'fade-out' : 'fade-in'}`}>
@@ -102,11 +109,14 @@ function App() {
           viewedCards={viewedCards}
         />
       )}
-      {view === 'card' && selectedCard && (
+      {view === 'card' && selectedRoom && (
         <CardDetail
-          card={selectedCard}
           room={selectedRoom}
-          onBack={() => handleBackToRoom(selectedRoom)}
+          initialCardIndex={selectedCardIndex}
+          viewedCards={viewedCards}
+          onMarkViewed={(card) => markCardViewed(card, selectedRoom)}
+          onGoToRoom={() => handleGoToRoom(selectedRoom)}
+          onGoHome={handleGoHome}
         />
       )}
       {view === 'finale' && (
