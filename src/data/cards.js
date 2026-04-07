@@ -1,7 +1,7 @@
 export const rooms = [
   {
     id: 'pantry',
-    name: 'The Pantry',
+    name: 'Food You Might Eat',
     sign: 'There is nothing like food to make one feel welcome',
     emoji: '🍙',
     color: '#c4956a',
@@ -170,7 +170,7 @@ export const rooms = [
   },
   {
     id: 'wardrobe',
-    name: 'The Wardrobe Closet',
+    name: 'Things You Might Wear',
     sign: 'Adventures make one late for everything',
     emoji: '👘',
     color: '#8b6e99',
@@ -257,7 +257,7 @@ export const rooms = [
   },
   {
     id: 'guest-rooms',
-    name: 'The Guest Rooms',
+    name: 'Places You Might Visit',
     sign: 'A most extraordinary collection of doors',
     emoji: '🏮',
     color: '#b85c4e',
@@ -367,7 +367,7 @@ export const rooms = [
   },
   {
     id: 'study',
-    name: 'The Study',
+    name: 'Words You Might Hear',
     sign: 'Not all who wander are wordless',
     emoji: '📜',
     color: '#6b8e6b',
@@ -453,7 +453,7 @@ export const rooms = [
   },
   {
     id: 'window-seat',
-    name: 'The Window Seat',
+    name: 'Sights You Might See',
     sign: 'Far over the misty mountains',
     emoji: '🗻',
     color: '#5a7d9a',
